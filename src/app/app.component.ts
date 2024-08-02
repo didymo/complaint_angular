@@ -10,5 +10,5 @@ import { MenubarComponent } from "./_components/menubar/menubar.component";
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'Complaint InvestigationAngular Components';
+  title = 'Complaint Investigation Angular Components';
 }

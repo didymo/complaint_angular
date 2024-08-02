@@ -1,0 +1,22 @@
+
+<h2 mat-dialog-title>Duplicate report</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSave()">
+  <mat-dialog-content>
+    <p>Title</p>
+    <mat-form-field>
+      <input matInput formControlName="label" placeholder="Title" required>
+    </mat-form-field>
+    <p>Revision Status</p>
+    <mat-form-field>
+      <mat-select formControlName="investigation_id" placeholder="Select Investigation">
+        <mat-option *ngFor="let investigationId of investigationId" [value]="investigationId.value">{{ investigationId.label }}</mat-option>
+    </mat-select>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="close()">Close</button>
+    <button mat-button color="primary" type="submit" [disabled]="form.invalid">Duplicate</button>
+  </mat-dialog-actions>
+</form>

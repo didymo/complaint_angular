@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormField } from '@angular/material/form-field';
@@ -8,28 +8,35 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { InvestigationService } from '../../../_services/investigation.service';
+import { ListOfInvestigation } from '../../../_classes/list-of-investigations';
 
 @Component({
-  selector: 'app-add-investigation-dialog',
+  selector: 'app-add-report-dialog',
   standalone: true,
   imports: [MatFormField, ReactiveFormsModule,
     MatDialogModule, CommonModule, MatInputModule, MatButtonModule, MatSelectModule],
-  templateUrl: './add-investigation-dialog.component.html',
-  styleUrl: './add-investigation-dialog.component.scss'
+  templateUrl: './add-report-dialog.component.html',
+  styleUrl: './add-report-dialog.component.scss'
 })
-export class AddInvestigationDialogComponent {
+export class AddReportDialogComponent implements OnInit {
 
   form: FormGroup;
-  revisionStatus: RevisionStatus[] = [
-    { value: '1', label: 'Archived' },
-    { value: '2', label: 'Draft' },
-    { value: '3', label: 'Published' }
-  ];
+  investigationId: InvestigationId[] = [];
 
-  constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<AddInvestigationDialogComponent>) {
+  constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<AddReportDialogComponent>, private investigationService: InvestigationService) {
     this.form = this.fb.group({
       label: [''],
-      revision_status: ['1']
+      investigation_id: ['']
+    });
+  }
+
+  ngOnInit(): void {
+    this.investigationService.getInvestigationList().subscribe((investigations: ListOfInvestigation[]) => {
+      this.investigationId = investigations.map(investigation => ({
+        value: investigation.entityId,
+        label: investigation.label
+      }));
     });
   }
 
@@ -49,8 +56,8 @@ export class AddInvestigationDialogComponent {
   }
 }
 
-interface RevisionStatus {
-  value: string;
+interface InvestigationId {
+  value: number;
   label: string;
 }
 
