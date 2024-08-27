@@ -1,8 +1,9 @@
 <br /><br />
 <h2>Manage Investigation<h2>
 <mat-tab-group >
-    <mat-tab label="Build" ><app-investigation-details /></mat-tab>
-    <mat-tab label="Edit" #editTab><app-update-investegation-steps  /></mat-tab>
+  
+    <mat-tab label="Build" ><ng-template matTabContent><app-investigation-details /></ng-template></mat-tab>
+    <mat-tab label="Edit" #editTab><ng-template matTabContent><app-update-investegation-steps  /></ng-template></mat-tab>
     <mat-tab label="Preview"></mat-tab>
   </mat-tab-group>
 

@@ -1,64 +1,80 @@
 .toggle-button {
   position: absolute;
   top: 47%;
-  right:  -24px;
+  right: -24px;
   transform: translateY(-50%);
   background-color: white;
   border-radius: 50%;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   z-index: 1000;
 }
+
 .toggle-button mat-icon {
   font-size: 24px;
   color: black;
 }
-//   ////////////
-  a {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    box-sizing: border-box;
-    padding: 16px;
-    // 32px is just a bit of a margin to make sure the link is smaller than the sidenav
-    min-width: calc(var(--min-expanded-sidenav-width) - 32px);
-    text-decoration: none;
-    color: #000;
-    transition: background-color 75ms ease-out;
-    border-radius: 4px;
-    // change overflowing text to ellipsis
-    .text-container {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    &:hover {
-      background-color: #DEEBFF;
-    }
-    &.active {
-      background-color: #C1DAFF;
-      font-weight: bold;
-      color: rgb(36, 82, 231);
-    }
+
+a {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 16px;
+
+  min-width: calc(var(--min-expanded-sidenav-width) - 32px);
+  text-decoration: none;
+  color: #000;
+  transition: background-color 75ms ease-out;
+  border-radius: 4px;
+
+  .text-container {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-.content{
+
+  &:hover {
+    background-color: #DEEBFF;
+  }
+
+  &.active {
+    background-color: #C1DAFF;
+    font-weight: bold;
+    color: rgb(36, 82, 231);
+  }
+}
+
+.content {
   padding: 24px;
 }
-mat-sidenav-container{
+
+mat-sidenav-container {
   height: calc(100vh - 64px);
 }
+
 mat-sidenav {
   overflow: visible !important;
 }
+
 .completed-step {
   background-color: green !important;
   color: white !important;
 }
-/* Style for the active step */
+
 .active-step {
-  background-color: #D3D3D3; /* Light gray background */
-  font-weight: bold; /* Bold font for emphasis */
-  border-left: 4px solid #3F51B5; /* Blue border on the left */
-  padding-left: 8px; /* Extra padding to accommodate the border */
+  background-color: #D3D3D3;
+  font-weight: bold;
+  border-left: 4px solid #3F51B5;
+  padding-left: 8px;
+}
+
+.disabled-step {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.disabled-step .text-container {
+  color: gray;
 }

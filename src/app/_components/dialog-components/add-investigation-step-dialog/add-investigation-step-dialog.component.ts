@@ -5,7 +5,7 @@ import { MatFormField } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, FormArray  } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormsModule  } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,13 +17,20 @@ import { Step } from '../../../_classes/step';
   selector: 'app-add-investigation-step-dialog',
   standalone: true,
   imports: [MatFormField, ReactiveFormsModule,
-    MatDialogModule, CommonModule,MatIconModule, MatInputModule, MatButtonModule, MatSelectModule],
+    MatDialogModule, CommonModule,MatIconModule, MatInputModule, MatButtonModule, MatSelectModule, FormsModule],
   templateUrl: './add-investigation-step-dialog.component.html',
   styleUrl: './add-investigation-step-dialog.component.scss'
 })
 export class AddInvestigationStepDialogComponent {
   
-  form: FormGroup;
+  formData: any = {
+    description: '',
+    required: '',
+    displayType: '',
+    choices: [],
+    conditions: []
+  };
+
   displayType: DisplayType[] = [
     { value: 'radio', label: 'Radio' },
     { value: 'radio&text', label: 'Radio & Text' },
@@ -31,92 +38,67 @@ export class AddInvestigationStepDialogComponent {
     { value: 'checkbox&text', label: 'Checkbox & Text' },
     { value: 'textbox', label: 'Textbox' }
   ];
-  stepChoices: StepChoice[]=[];
+
   filteredStepsData: Step[] = [];
-  constructor(private fb: FormBuilder, private uuidService: UuidService, public dialogRef: MatDialogRef<AddInvestigationStepDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any[]) {
-    this.form = this.fb.group({
-      description: [''],
-      required: [''],
-      displayType:[''],
-      choices: this.fb.array([]),
-      conditions: this.fb.array([])
-    });
 
+  constructor(
+    private uuidService: UuidService,
+    public dialogRef: MatDialogRef<AddInvestigationStepDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any[]
+  ) {
     this.filteredStepsData = data.filter(s => s.displayType !== "textbox");
-   
-  }
-
-  get choices() {
-
-    return this.form.get('choices') as FormArray;
   }
 
   addChoice() {
-    const index = this.choices.length + 1;
-    this.choices.push(this.fb.group({
-      id: [index],
-      choiceUuid:[this.uuidService.generateUuid()],
-      description:['']
-    }));
+    this.formData.choices.push({
+      id: this.formData.choices.length + 1,
+      choiceUuid: this.uuidService.generateUuid(),
+      description: ''
+    });
   }
 
   removeChoice(index: number) {
-    this.choices.removeAt(index);
-  }
-
-//logic
-  get conditions() {
-    return this.form.get('conditions') as FormArray;
+    this.formData.choices.splice(index, 1);
   }
 
   addCondition() {
-    const index = this.conditions.length + 1;
-    this.conditions.push(this.fb.group({
-      conditionId:[index],
-      stepUuid: [''],
-      choiceUuid: ['']
-    }));
+    this.formData.conditions.push({
+      conditionId: this.formData.conditions.length + 1,
+      stepUuid: '',
+      choiceUuid: '',
+      stepChoices: []
+    });
   }
 
   removeCondition(index: number) {
-    this.conditions.removeAt(index);
+    this.formData.conditions.splice(index, 1);
   }
 
- 
-  getValues(uuid: string) {
-
-    for (const step of this.filteredStepsData) {
-   
-      if (step.choices && step.stepUuid === uuid) {
-        this.stepChoices = step.choices   
-      }
+  updateStepChoices(uuid: string, conditionIndex: number) {
+    const selectedStep = this.filteredStepsData.find(step => step.stepUuid === uuid);
+    if (selectedStep && selectedStep.choices) {
+      this.formData.conditions[conditionIndex].stepChoices = selectedStep.choices;
     }
-  
-  return []; 
-}
+  }
 
   close(): void {
     this.dialogRef.close();
-    this.form.reset();
+    this.formData = {}; // Reset formData
   }
 
-  save(): void {
-    if (this.form.valid) {
-      
+  save(stepForm: any): void {
+    if (stepForm.valid) {
       const newStepData = {
         id: this.data.length + 1,
         stepUuid: this.uuidService.generateUuid(),
         answer: '',
         textAnswer: '',
-        isVisible:false,
-        isCompleted:false,
-        ...this.form.value
-      }
+        isVisible: false,
+        isCompleted: false,
+        ...this.formData
+      };
       this.dialogRef.close(newStepData);
-    } else {
-
     }
-
   }
 }
 

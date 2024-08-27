@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {BehaviorSubject, Observable, throwError} from 'rxjs';
-import {catchError, tap} from 'rxjs/operators';
+import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
+import {catchError,switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 
 @Injectable({
@@ -10,12 +10,14 @@ import {environment} from '../../environments/environment';
 })
 export class AuthService {
   private authToken: string | null = null;
+  private csrfToken: string | null = null;
   public refreshToken: string | null = null;
   public isRefreshing = false;
   private tokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {
   }
+
 
   login(username: string, password: string): Observable<any> {
     const url = environment.apiUrl;
@@ -25,35 +27,62 @@ export class AuthService {
     body.set('client_secret', environment.clientSecret);
     body.set('username', username);
     body.set('password', password);
-
     const options = {
       headers: new HttpHeaders({
         'Content-Type': 'application/x-www-form-urlencoded'
       })
     };
-
     return this.http.post(url, body.toString(), options).pipe(
-      tap((res: any) => this.setTokens(res.access_token, res.refresh_token)),
+      tap((res: any) => {
+        console.log('Login response:', res); // Log the entire response
+        if (res.access_token && res.refresh_token) {
+          this.setTokens(res.access_token, res.refresh_token);
+        } else {
+          console.error('Tokens not found in response');
+        }
+      }),
+      switchMap(() => this.getCsrfToken()),
       catchError(this.handleError)
     );
   }
 
-  setTokens(accessToken: string, refreshToken: string): void {
-    this.authToken = accessToken;
-    this.refreshToken = refreshToken;
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
+  private getCsrfToken(): Observable<string> {
+    if (this.csrfToken) {
+      return of(this.csrfToken);
+    }
+    console.log("CSRF: ", this.csrfToken)
+    const url = environment.csrfTokenUrl;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authToken}`
+    });
+    return this.http.get(url, { responseType: 'text', headers }).pipe(
+      tap((token: string) => {
+        this.csrfToken = token;
+        localStorage.setItem('csrf_token', token);
+        console.log('CSRF token set:', token);
+      }),
+      catchError(this.handleError)
+    );
+    console.log("CSRF: ", this.csrfToken)
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Unknown error!';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
+  setTokens(accessToken: string, refreshToken: string): void {
+    if (accessToken && refreshToken) {
+      this.authToken = accessToken;
+      this.refreshToken = refreshToken;
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+      console.log('Tokens set:', { accessToken, refreshToken });
     } else {
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      console.error('Invalid tokens provided:', { accessToken, refreshToken });
     }
-    return throwError(errorMessage);
   }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('An error occurred:', error);
+    return throwError(() => new Error('Something went wrong; please try again later.'));
+  }
+
 
   getToken(): string | null {
     return localStorage.getItem('access_token');
@@ -64,11 +93,38 @@ export class AuthService {
   }
 
   getHeaders(): HttpHeaders {
-    return new HttpHeaders({
+    const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`,
       'Content-Type': 'application/json'
     });
+
+    if (this.csrfToken) {
+      headers.append('X-CSRF-Token', this.csrfToken);
+    }
+
+    return headers;
   }
+
+  getPOSTFileUploadHeaders(): HttpHeaders {
+    const token = this.getToken();
+    const csrfToken = this.getCsrfTokenFromStorage();
+    if (!token || !csrfToken) {
+      throw new Error('Authentication tokens are missing');
+    }
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.api+json', 
+      'X-CSRF-Token': csrfToken
+    });
+  }
+
+
+  getCsrfTokenFromStorage(): string | null {
+  if (!this.csrfToken) {
+    this.csrfToken = localStorage.getItem('csrf_token');
+  }
+  return this.csrfToken;
+}
 
   refreshTokenMethod(): Observable<any> {
     const url = environment.apiUrl;

@@ -5,22 +5,30 @@ import { MatFormField } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, FormArray  } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormsModule  } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { StepChoice } from '../../../_classes/step-choice';
 import { Step } from '../../../_classes/step';
+import { UuidService } from '../../../_services/uuid.service';
 @Component({
   selector: 'app-update-investigation-step-dialog',
   standalone: true,
   imports: [MatFormField, ReactiveFormsModule,
-    MatDialogModule, CommonModule,MatIconModule, MatInputModule, MatButtonModule, MatSelectModule],
+    MatDialogModule, CommonModule,MatIconModule, MatInputModule, MatButtonModule, MatSelectModule, FormsModule],
   templateUrl: './update-investigation-step-dialog.component.html',
   styleUrl: './update-investigation-step-dialog.component.scss'
 })
 export class UpdateInvestigationStepDialogComponent {
-  form: FormGroup;
+  formData: any = {
+    description: '',
+    required: '',
+    displayType: '',
+    choices: [],
+    conditions: []
+  };
+  filteredStepsData: Step[] = [];
   displayType: DisplayType[] = [
     { value: 'radio', label: 'Radio' },
     { value: 'radio&text', label: 'Radio & Text' },
@@ -28,102 +36,70 @@ export class UpdateInvestigationStepDialogComponent {
     { value: 'checkbox&text', label: 'Checkbox & Text' },
     { value: 'textbox', label: 'Textbox' }
   ];
-  stepChoices: StepChoice[]=[];
-  filteredStepsData: Step[] = [];
 
-  constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<UpdateInvestigationStepDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: { step: any; stepsData: any[] } ) {
-    this.form = this.fb.group({
-      description: [data.step.description],
-      required: [data.step.required],
-      displayType:[data.step.displayType],
-      choices: this.fb.array(
-        data.step.choices.map((choice: any) => this.fb.group({
-          id: [choice.id],
-          choiceUuid:[choice.choiceUuid],
-          description: [choice.description || '']
-        })) || []
-      ),
-      conditions: this.fb.array(
-        data.step.conditions.map((condition: any) => this.fb.group({
-          stepUuid: [condition.stepUuid || ''],
-          choiceUuid: [condition.choiceUuid || '']
-        })) || []
-      )
-    });
+  constructor(
+    private uuidService: UuidService,
+    public dialogRef: MatDialogRef<UpdateInvestigationStepDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { step: any; stepsData: Step[] }
+  ) {
+    this.formData.description = data.step.description;
+    this.formData.required = data.step.required;
+    this.formData.displayType = data.step.displayType;
+    this.formData.choices = data.step.choices || [];
+    this.formData.conditions = data.step.conditions || [];
     this.filteredStepsData = data.stepsData.filter(s => s.stepUuid !== data.step.stepUuid);
   }
 
-  get choices() {
-    return this.form.get('choices') as FormArray;
-  }
-
   addChoice() {
-    const index = this.choices.length + 1;
-    this.choices.push(this.fb.group({
-       id: [index],
-      choiceUuid:[''],
-      description:['']
-    }));
+    this.formData.choices.push({
+      id: this.formData.choices.length + 1,
+      choiceUuid: this.uuidService.generateUuid(),
+      description: ''
+    });
   }
 
   removeChoice(index: number) {
-    this.choices.removeAt(index);
-  }
-
-//logic
-  get conditions() {
-    console.log("selected id: ", this.data.step.stepUuid)
-    return this.form.get('conditions') as FormArray;
+    this.formData.choices.splice(index, 1);
   }
 
   addCondition() {
-    const index = this.conditions.length + 1;
-    this.conditions.push(this.fb.group({
-      conditionId:[index],
-      stepUuid: [''],
-      choiceUuid: ['']
-    }));
+    this.formData.conditions.push({
+      conditionId: this.formData.conditions.length + 1,
+      stepUuid: '',
+      choiceUuid: '',
+      stepChoices: []
+    });
   }
 
   removeCondition(index: number) {
-    this.conditions.removeAt(index);
+    this.formData.conditions.splice(index, 1);
   }
 
- 
-
-  getValues(uuid: string) {
-      for (const step of this.data.stepsData) {   
-        if (step.choices && step.stepUuid === uuid) {
-          this.stepChoices = step.choices;
-        }
-      }
-    
-    return []; 
+  updateStepChoices(uuid: string, conditionIndex: number) {
+    const selectedStep = this.filteredStepsData.find(step => step.stepUuid === uuid);
+    if (selectedStep && selectedStep.choices) {
+      this.formData.conditions[conditionIndex].stepChoices = selectedStep.choices;
+    }
   }
 
   close(): void {
     this.dialogRef.close();
-    this.form.reset();
+    this.formData = {}; // Reset formData
   }
 
-  save(): void {
-    if (this.form.valid) {
-      console.log(this.form.value.displayType )
-      console.log(this.form.value.stepChoices )
-      if(this.form.value.displayType == "textbox"){
-        this.form.value.choices = [];
-      }
-      const updatedStep = {
-        id: this.data.step.id,
-        stepUuid: this.data.step.stepUuid,
-        ...this.form.value,
-      };
-      this.dialogRef.close(updatedStep);
-    } else {
-
+  save(stepForm: any): void {
+    if (this.formData.displayType === 'textbox') {
+      this.formData.choices = [];
     }
-
+    if (stepForm.valid) {
+    const updatedStep = {
+      id: this.data.step.id,
+      stepUuid: this.data.step.stepUuid,
+     ...this.formData
+    };
+    this.dialogRef.close(updatedStep);
   }
+}
 }
 
 interface DisplayType {

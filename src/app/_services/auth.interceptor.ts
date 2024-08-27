@@ -28,11 +28,13 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
             console.log('Token refreshed:', token); // Log the new token
 
             authService.setTokens(token.access_token, token.refresh_token);
-            req = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${token.access_token}`
-              }
-            });
+            if (authToken && !req.headers.has('Authorization')) {
+              req = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${authToken}`
+                }
+              });
+            }
 
             return next(req);  // Ensure an Observable is returned here
           }),

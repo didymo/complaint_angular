@@ -2,22 +2,25 @@
 <mat-sidenav-container autosize>
   <mat-sidenav [opened]="true" mode="side" [style.width]="sideNavWidth()">
     <mat-nav-list>
-      <div *ngFor="let steps of reportDetails?.steps; let i = index" >
-        <div *ngIf="steps.isVisible">
-        <a (click)="getStep(steps.stepUuid)" [ngClass]="{'active-step': oneStep?.stepUuid === steps.stepUuid}">
-          <span>
-            <ng-content select="[icon]">
-              <button mat-mini-fab  [ngClass]="{'completed-step': steps.isCompleted}">{{steps.id}}</button>
-            </ng-content>
-          </span>
-          <span class="text-container">
-            <ng-content><span>Step {{i + 1}} - {{steps.description}}</span></ng-content>
-          </span>
-        </a>
-        <mat-divider></mat-divider>
-      </div>
+      <div *ngFor="let step of reportDetails?.steps; let i = index">
+        <div [ngClass]="{'disabled-step': !step.isVisible}">
+          <a  (click)="getStep(step.stepUuid)" [ngClass]="{'active-step': oneStep?.stepUuid === step.stepUuid}">
+            <span>
+              <ng-content select="[icon]">
+                <button mat-mini-fab [ngClass]="{'completed-step': step.isCompleted}">{{step.id}}</button>
+              </ng-content>
+            </span>
+            <span class="text-container">
+              <ng-content>
+                <span>Step {{step.id}} - {{step.description}}</span>
+              </ng-content>
+            </span>
+          </a>
+          <mat-divider></mat-divider>
+        </div>
       </div>
     </mat-nav-list>
+
     <!-- Toggle button as an arrow -->
     <button mat-icon-button class="toggle-button" (click)="collapsed.set(!collapsed())">
       <mat-icon>{{ !collapsed() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
@@ -43,7 +46,7 @@
       </div>
       <!-- Radio -->
       <div *ngIf="oneStep.displayType === 'radio'">
-        <mat-radio-group [(ngModel)]="oneStep.answer"  (change)="onRadioChange($event, oneStep)">
+        <mat-radio-group [(ngModel)]="oneStep.answer"  (ngModelChange)="onRadioChange($event, oneStep)">
           <div *ngFor="let choices of oneStep?.choices; let j = index" class="steps">
             <span class="form-control">
               <mat-radio-button  [value]="choices.choiceUuid">{{choices.description}}</mat-radio-button>
@@ -54,14 +57,14 @@
 
         <!-- Checkbox and Text -->
         <div *ngIf="oneStep.displayType === 'checkbox&text'">
-          <div *ngFor="let choices of oneStep?.choices; let j = index">
+          <div *ngFor="let choice of oneStep?.choices; let j = index">
             <span class="form-control">
               <mat-checkbox
-            [name]="'assessment_' + choices.choiceUuid"
-            [id]="'choice_' + choices.id"
-            [(ngModel)]="choices.selected"
-            (ngModelChange)="onCheckboxChange(oneStep, choices)"
-          >{{choices.description}}</mat-checkbox>
+            [name]="'assessment_' + choice.choiceUuid"
+            [id]="'choice_' + choice.id"
+            [(ngModel)] = "choice.selected"
+            (ngModelChange)="onCheckboxChange( choice, oneStep)"
+          >{{choice.description}}</mat-checkbox>
               <!--<mat-checkbox [(ngModel)]="oneStep.answer" [value]="choices.choiceUuid" class="steps">{{choices.description}}</mat-checkbox> -->
             </span>
           </div>
@@ -78,4 +81,4 @@
   </mat-sidenav-content>
 </mat-sidenav-container>
 
-<button (click)="onSave()" type="submit" class="btn btn-primary">Save</button>
+<button mat-button color="primary" (click)="onSave()" type="submit" class="btn btn-primary">Save</button>

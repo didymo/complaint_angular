@@ -5,10 +5,11 @@
  *  An step choice forms a single choice in an step.
  */
 export class StepChoice {
-  constructor( id: string, choiceUuid: string, description: string) {
+  constructor( id: string, choiceUuid: string, description: string, selected: boolean) {
     this.choiceUuid = choiceUuid;
     this.id = id;
     this.description = description;
+    this.selected = selected
 
   }
 
@@ -28,5 +29,7 @@ export class StepChoice {
    */
     description: string;
 
+
+    selected: boolean;
 
 }

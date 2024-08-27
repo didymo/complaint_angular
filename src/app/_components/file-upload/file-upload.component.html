@@ -1,11 +1,24 @@
 <div class="upload-container">
-    <button type="button" (click)="fileInput.click()">Select File</button>
-    <input type="file" #fileInput (change)="onFileSelect($event)" style="display: none;">
-    <ul *ngIf="selectedFile">
-      <li>{{ selectedFile.name }} ({{ selectedFile.size }} bytes)</li>
-    </ul>
-    <button (click)="onUpload()" [disabled]="!selectedFile">Upload</button>
-    <div *ngIf="uploadResponse">
-      <p>Upload Response: {{ uploadResponse }}</p>
-    </div>
+  <button type="button" (click)="fileInput.click()">Select File</button>
+  <input type="file" #fileInput (change)="onFileSelect($event)" style="display: none;">
+  <ul *ngIf="selectedFile">
+    <li>{{ selectedFile.name }} ({{ selectedFile.size }} bytes)</li>
+  </ul>
+  <button (click)="onUpload()" [disabled]="!selectedFile">Upload</button>
+  <div *ngIf="uploadResponse">
+    <p>Upload Response: {{ uploadResponse }}</p>
   </div>
+</div>
+<div>
+  <div *ngFor="let document of documentList">
+    <!-- <div  *ngIf="document.visible"> -->
+      <br />
+      <ul>
+        <li><p>Label: {{document.label}}</p>
+          <p>StepID: {{document.stepId}}</p></li>  
+      </ul>
+<!--       
+    </div> -->
+     
+  </div>
+</div>
