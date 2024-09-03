@@ -1,16 +1,14 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, ViewChild, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../../_services/auth.service';
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ReportService } from '../../_services/report.service';
+import { DocumentService } from '../../_services/document.service';
 import { InvestigationService } from '../../_services/investigation.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { EditorComponent } from '@tinymce/tinymce-angular';
 import { Step } from '../../_classes/step';
@@ -35,6 +33,7 @@ import { Report } from '../../_classes/report';
 })
 
 export class ReportConductComponent implements OnInit {
+  @ViewChild(FileUploadComponent) fileUploadComponent!: FileUploadComponent;
   report: Report | undefined;
   reportId: string;
   reportDetails: any;
@@ -58,7 +57,8 @@ export class ReportConductComponent implements OnInit {
     private authService: AuthService,
     private reportService: ReportService,
     private dialog: MatDialog,
-    private processService: InvestigationService
+    private processService: InvestigationService,
+    private documentService: DocumentService
    
   ) {
     this.reportId = this.route.snapshot.params['id'];
@@ -91,7 +91,7 @@ export class ReportConductComponent implements OnInit {
         if (this.reportDetails.steps) {
           this.reportDetails.steps[0].isVisible = true;
           this.oneStep = this.reportDetails.steps[0];
-          this.reportService.setDocumentDetails(this.reportDetails.entityId, this.reportDetails.reportLabel,this.oneStep.id);
+          this.documentService.setDocumentDetails(this.reportDetails.entityId, this.reportDetails.reportLabel,this.oneStep.id);
  
         }
       },
@@ -107,7 +107,8 @@ export class ReportConductComponent implements OnInit {
     for (const step of this.reportDetails.steps) {
       if (step && step.stepUuid == stepUuid) {
         this.oneStep = step;
-        this.reportService.setDocumentDetails(this.reportDetails.entityId, this.reportDetails.label,this.oneStep.id);
+        this.documentService.setDocumentDetails(this.reportDetails.entityId, this.reportDetails.label,this.oneStep.id);
+        this.fileUploadComponent.getDocumentList();
         this.report = new Report(this.oneStep.entityId, this.oneStep.reportLabel, this.oneStep.investigationId);
 
       }
@@ -224,6 +225,12 @@ export class ReportConductComponent implements OnInit {
       }
     }
     return false;
+  }
+  checkRequiredStatus(step: any): boolean{
+    if(step.required == 0){
+      return false;
+    }
+    return true;
   }
 
 }
