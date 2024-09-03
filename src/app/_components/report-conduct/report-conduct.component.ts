@@ -44,11 +44,13 @@ export class ReportConductComponent implements OnInit {
     plugins: 'lists link image table code help wordcount'
   };
 
-  //Ruban's variables
+  //Logic Variables
   collapsed = signal(false);
   sideNavWidth = computed(() => this.collapsed() ? '65px' : '350px');
   oneStep: any;
-  userChoices: Map<string, string> = new Map();
+  userChoices: Map<string, string> = new Map(); //questionuuid:selectedchoiceUuid
+  checkboxChoices = new Map(); //questionuuid:an array of selected checkboxUuid's
+  checkboxGlobal: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -131,12 +133,37 @@ export class ReportConductComponent implements OnInit {
 
   onCheckboxChange(choice: any, step: Step) {
     //store the choice in userChoices
-    this.userChoices.set(step.stepUuid, choice.choiceUuid);
-    step.isCompleted = true;
+    if (choice.selected) { // checkbox checked
+      if (this.checkboxChoices.get(step.stepUuid))
+        {
+          this.checkboxChoices.get(step.stepUuid).push(choice.choiceUuid);
+        }
+      else 
+        {
+          this.checkboxChoices.set(step.stepUuid, [choice.choiceUuid]);
+        }
+    }
+    else //checkbox unchecked
+    {
+      if (this.checkboxChoices.get(step.stepUuid))
+      {
+        let values = this.checkboxChoices.get(step.stepUuid);
 
+        const index = values.findIndex((ab: any) => ab === choice.choiceUuid);
+        values.splice(index, 1);
+        console.log("index: ", index);
+        this.checkboxChoices.set(step.stepUuid, values); //update the map
+        console.log('values:', values);
+      }
+    }
+    
+    console.log('checkboxChoices: ', this.checkboxChoices);
+    
+    step.isCompleted = true;
     const selectedChoices = step.choices.filter(c => c.selected);
-    console.log("Selected", selectedChoices)
-    step.answer = selectedChoices.map(c => c.description).join(', ');
+    step.answer = selectedChoices.map(c => c.choiceUuid).join(', ');
+    this.checkboxGlobal = selectedChoices;
+    console.log('SelChoice', selectedChoices);
 
     var currentindex = step.id;
     for (currentindex; currentindex < this.reportDetails.steps.length; currentindex++) {
@@ -145,10 +172,16 @@ export class ReportConductComponent implements OnInit {
       this.reportDetails.steps[currentindex].isCompleted = false;
       this.reportDetails.steps[currentindex].answer = "";
     }
+
+    this.updateSteps();
     //determine the next step based on conditions
-    if (choice.selected) {
-      this.updateSteps();
-    }
+    
+    //else if(!choice.selected)
+    //{
+    //  this.userChoices.delete(step.stepUuid);
+    //  this.updateSteps();
+    //  console.log("local checkbox update");
+    //}
 
   }
 
@@ -168,6 +201,7 @@ export class ReportConductComponent implements OnInit {
       step.isVisible = this.checkVisibility(step);
     }
   }
+
   checkVisibility(step: any): boolean {
     //if there are no conditions, the step is always visible
     if (!step.conditions || step.conditions.length === 0 || step.isCompleted === true) {
@@ -176,8 +210,17 @@ export class ReportConductComponent implements OnInit {
     //check each condition
     for (const condition of step.conditions) {
       const userChoice = this.userChoices.get(condition.stepUuid);
+      const checkboxChoice = this.checkboxChoices.get(condition.stepUuid);
       if (userChoice === condition.choiceUuid) {
         return true;
+      }
+      if (this.checkboxGlobal)
+      {
+        for (const choice of this.checkboxGlobal) {
+          if (choice.choiceUuid === condition.choiceUuid) {
+            return true;
+          }
+        }
       }
     }
     return false;
