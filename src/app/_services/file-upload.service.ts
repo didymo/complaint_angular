@@ -52,6 +52,10 @@ export class FileUploadService {
     return this.http.get<any[]>(`${environment.getDocumentList}${investigationId}`, {headers});
   }
 
+  deleteInvestigationDocument(fileId: string){
+    const headers =this.authService.getHeaders();
+    return this.http.patch<any[]>(`${environment.deleteInvestigationDocument}${fileId}`, {headers});
+  }
 
 }
 

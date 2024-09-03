@@ -1,0 +1,56 @@
+<div class="container">
+    <div class="preview-container">
+        <h1>{{investigationDetail.investigationLabel}}</h1>
+        <div *ngFor="let investigationStep of investigationSteps">
+            <h2>Step {{investigationStep.id}} </h2>
+            <p>{{investigationStep.description}}</p>
+            <!-- Radio & Text Boxes -->
+            <div *ngIf="investigationStep.displayType === 'radio&text'">
+                <mat-radio-group>
+                    <div *ngFor="let choices of investigationStep?.choices" class="steps">
+                        <mat-radio-button [value]="choices.choiceUuid">{{choices.description}}</mat-radio-button>
+                    </div>
+                </mat-radio-group>
+                <br />
+                <b>Please provide further details.</b><i>Optional</i><br /><br />
+                <editor apiKey="r0gpf34f1r14a97ovjgipjiafq78h23ljobqqcamxru11wpd" [init]="init"></editor>
+            </div>
+            <!-- Radio -->
+            <div *ngIf="investigationStep.displayType === 'radio'">
+                <mat-radio-group>
+                    <div *ngFor="let choices of investigationStep?.choices" class="steps">
+                        <mat-radio-button [value]="choices.choiceUuid">{{choices.description}}</mat-radio-button>
+                    </div>
+                </mat-radio-group>
+            </div>
+
+            <!-- Checkbox and Text -->
+            <div *ngIf="investigationStep.displayType === 'checkbox&text'">
+                <div *ngFor="let choice of investigationStep?.choices">
+                    <mat-checkbox>
+                        {{choice.description}}</mat-checkbox>
+                </div>
+                <br />
+                <b>Please provide further details. </b><i>Optional</i><br /><br />
+                <editor apiKey="r0gpf34f1r14a97ovjgipjiafq78h23ljobqqcamxru11wpd" [init]="init" />
+
+            </div>
+
+            <!-- Checkbox -->
+            <div *ngIf="investigationStep.displayType === 'checkbox'">
+                <div *ngFor="let choice of investigationStep?.choices">
+                    <mat-checkbox>
+                        {{choice.description}}</mat-checkbox>
+                </div>
+            </div>
+            <br />
+            <!--Textbox-->
+            <div *ngIf="investigationStep.displayType === 'textbox'">
+                <editor apiKey="r0gpf34f1r14a97ovjgipjiafq78h23ljobqqcamxru11wpd" [init]="init" />
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

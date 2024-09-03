@@ -27,8 +27,8 @@ export const environment = {
     //Document Upload
     postUploadFileURL: 'http://complaintdrupal.local/file/upload/investigation_documents/_/file',
     addDocument: 'http://complaintdrupal.local/rest/investigation/document/post/',
-    getDocumentList: 'http://complaintdrupal.local//rest/investigation/document/get/',
- 
+    getDocumentList: 'http://complaintdrupal.local/rest/investigation/document/get/',
+    deleteInvestigationDocument: 'http://complaintdrupal.local/api/delete-investigation-document/',
     clientId: 'your-client-id',
     clientSecret: 'your-client-secret'
   };

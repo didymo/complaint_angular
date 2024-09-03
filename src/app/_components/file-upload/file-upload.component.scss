@@ -14,3 +14,14 @@
   .upload-container button {
     margin-top: 10px;
   }
+
+  .card-content .content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .delete-btn {
+    background-color: red;
+    margin-left: auto;
+  }

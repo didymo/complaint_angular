@@ -32,7 +32,7 @@
       <p>{{oneStep.description}}</p>
       <!-- Radio & Text Boxes -->
       <div *ngIf="oneStep.displayType === 'radio&text'">
-        <mat-radio-group  [(ngModel)]="oneStep.answer"  (change)="onRadioChange($event, oneStep)">
+        <mat-radio-group  [(ngModel)]="oneStep.answer"  (change)="onRadioChange($event, oneStep)" required="checkRequiredStatus(oneStep)">
           <div *ngFor="let choices of oneStep?.choices; let j = index" class="steps">
             <span class="form-control">
               <mat-radio-button  [value]="choices.choiceUuid">{{choices.description}}</mat-radio-button>
@@ -60,7 +60,7 @@
           <div *ngFor="let choice of oneStep?.choices; let j = index">
             <span class="form-control">
               <mat-checkbox
-            [name]="'assessment_' + choice.choiceUuid"
+            [name]="'choice_' + choice.choiceUuid"
             [id]="'choice_' + choice.id"
             [(ngModel)] = "choice.selected"
             (ngModelChange)="onCheckboxChange( choice, oneStep)"
@@ -72,6 +72,7 @@
           <b>Please provide further details. </b><i>Optional</i><br /><br />
           <editor apiKey="r0gpf34f1r14a97ovjgipjiafq78h23ljobqqcamxru11wpd" [(ngModel)]="oneStep.textAnswer" [init]="init" />
           <app-file-upload></app-file-upload>
+       
         </div>
   
         <!-- Checkbox and Text -->
@@ -81,4 +82,7 @@
   </mat-sidenav-content>
 </mat-sidenav-container>
 
+<button mat-button color="primary" (click)="onSave()" type="submit" class="btn btn-primary">Save As Draft</button>
 <button mat-button color="primary" (click)="onSave()" type="submit" class="btn btn-primary">Save</button>
+
+
