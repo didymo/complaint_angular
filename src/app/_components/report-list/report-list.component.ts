@@ -19,7 +19,7 @@ import { MatDialog} from '@angular/material/dialog';
 })
 export class ReportListComponent {
   reports: ListOfReport[] = [];
-  displayedColumns: string[] = ['entityid', 'label', 'investigationid', 'createdTime', 'updatedTime', 'actions'];
+  displayedColumns: string[] = ['entityid', 'label', 'investigationId', 'createdTime', 'actions'];
 
   constructor(private http: HttpClient, private authService: AuthService, private reportService: ReportService, private dialog: MatDialog) { }
 
@@ -110,20 +110,7 @@ export class ReportListComponent {
       }
     })
 
-    
 
-  }
-
-  // Goes into the jsonString to get the linked process ID (it's still called InvestigaitonID for now).
-  getInvestigationId(report: any): string {
-    try {
-      const data = JSON.parse(report.jsonString);
-      console.log(data);
-      return data.investigationLabel || 'N/A';
-    } catch (e) {
-      console.error('Invalid JSON string', e);
-      return 'N/A';
-    }
   }
 
 }
