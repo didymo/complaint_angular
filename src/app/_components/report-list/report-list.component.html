@@ -21,15 +21,21 @@
     </ng-container>
   
     <!--  Investigation Column -->
-    <ng-container matColumnDef="investigationId">
+    <ng-container matColumnDef="investigationid">
       <mat-header-cell *matHeaderCellDef> Investigation Id </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.investigationId}} </mat-cell>
+      <mat-cell *matCellDef="let element"> {{getInvestigationId(element)}} </mat-cell>
     </ng-container>
   
     <!-- Creation Time Column -->
     <ng-container matColumnDef="createdTime">
       <mat-header-cell *matHeaderCellDef> Created Time </mat-header-cell>
       <mat-cell *matCellDef="let element"> {{element.createdTime}} </mat-cell>
+    </ng-container>
+
+    <!-- Creation Time Column -->
+    <ng-container matColumnDef="updatedTime">
+      <mat-header-cell *matHeaderCellDef> Last Updated </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.updatedTime}} </mat-cell>
     </ng-container>
   
     <!-- Actions Column -->
