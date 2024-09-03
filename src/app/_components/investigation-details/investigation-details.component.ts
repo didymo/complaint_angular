@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AddInvestigationStepDialogComponent } from '../dialog-components/add-investigation-step-dialog/add-investigation-step-dialog.component';
-import { InvestigationStepDetailComponent } from '../investigation-step-detail/investigation-step-detail.component';
+import { InvestigationStepDetailComponent } from '../dialog-components/investigation-step-detail/investigation-step-detail.component';
 
 @Component({
   selector: 'app-investigation-details',

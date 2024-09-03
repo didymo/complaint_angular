@@ -5,7 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { Step } from '../../_classes/step';
+import { Step } from '../../../_classes/step';
 
 @Component({
   selector: 'app-investigation-step-detail',

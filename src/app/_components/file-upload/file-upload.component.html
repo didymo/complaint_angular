@@ -10,15 +10,23 @@
   </div>
 </div>
 <div>
-  <div *ngFor="let document of documentList">
-    <!-- <div  *ngIf="document.visible"> -->
-      <br />
-      <ul>
-        <li><p>Label: {{document.label}}</p>
-          <p>StepID: {{document.stepId}}</p></li>  
-      </ul>
-<!--       
-    </div> -->
-     
+  <div *ngFor="let document of filteredDocumentList">
+    <br />
+    <div *ngIf="document.isVisible">
+    <mat-card appearance="outlined">
+      <mat-card-content class="card-content">
+        <div class="content">
+          Document: {{document.label}}
+          <span class="actions">
+            <button mat-mini-fab class="delete-btn" (click)="deleteDocument(document.entityId)">
+              <mat-icon >delete</mat-icon>
+            </button>
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+    <br />
+    <mat-divider></mat-divider>
   </div>
 </div>
